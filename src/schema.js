@@ -1,31 +1,29 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-  type Artist {
-      id: Int!
-      name: String!
-      google_id: String!
-      albums: [Album!]!
-    }
-
-  type Album {
-      id: Int!
-      title: String!
-      artist_id: Int!
-      tracks: [Track]!
+  type User {
+    id: Int!
+    username: String!
+    projects: [Project!]!
   }
 
-  type Track {
-      id: Int!
-      title: String!
-      duration: Int!
-      album_id: Int!
-      album: Album!
+  type Project {
+    id: Int!
+    title: String!
+    user_id: Int!
+    tasks: [Task]!
+  }
+
+  type Task {
+    id: Int!
+    title: String!
+    project_id: Int!
+    project: Project!
   }
 
   type Query {
-    getArtist(id: Int): Artist
-    getTrack(id: Int): Track
+    getUser: User
+    getTask(id: Int!): Task
   }
 `;
 

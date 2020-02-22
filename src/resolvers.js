@@ -19,56 +19,59 @@ const clientConnected = (err) => {
 
 const resolvers = {
   Query: {
-    async getArtist (root, args, ctx, info) {
+    async getUser (root, args, ctx, info) {
       if (!connected) {
         await client.connect(clientConnected);
       }
-      if (!args.id) {}
-      const resp = await client.query(`
-         select * from artist
-         where id = ${args.id} and
-         google_id = '${ctx.google_id}'
-      `);
+      const resp = await client.query(`select * from "user" where id = ${ctx.session_id}`);
       return resp.rows[0];
     },
-    async getTrack (root, args, ctx, info) {
-      console.log('client', client);
+    async getTask (root, args, ctx, info) {
       if (!connected) {
         await client.connect(clientConnected);
       }
       const resp = await client.query(`
-        select t.* from track as t
-        join album on t.album_id = album.id
-        join artist on artist.id = album.artist_id
+        select t.* from task as t
+        join project on t.project_id = project.id
         where t.id = ${args.id} and
-        artist.google_id = '${ctx.google_id}'
+        project.user_id = '${ctx.session_id}'
       `);
       return resp.rows[0];
     }
   },
-  Artist: {
-    async albums (artist, args, ctx, info) {
+  User: {
+    async projects (user, args, ctx, info) {
       const resp = await client.query(`
-         select * from album
-         join artist on artist.id = album.artist_id
-         where artist_id = ${artist.id} and
-         google_id = '${ctx.google_id}'
+         select p.* from project as p
+         join "user" on "user".id = p.user_id
+         where user_id = ${user.id} and
+         p.user_id = ${ctx.session_id}
       `);
       return resp.rows;
     }
   },
-  Track: {
+  Task: {
     // returns all fields of album, but authorizing only album belonging to the given user's
     // session id
-    async album(track, args, ctx, info) {
+    async project(task, args, ctx, info) {
       const resp = await client.query(`
-        select a.* from album as a
-        join track on track.album_id = a.id
-        join artist on a.artist_id = artist.id
-        where track.id = ${track.id} and
-        artist.google_id = '${ctx.google_id}'
+        select p.* from project as p
+        join task on task.project_id = p.id
+        where task.id = ${task.id} and
+        p.user_id = '${ctx.session_id}'
         `);
       return resp.rows[0];
+    }
+  },
+  Project: {
+    async tasks(project, args, ctx, info) {
+      const resp = await client.query(`
+        select t.* from task as t
+        join project on t.project_id = project.id
+        where project_id = ${project.id} and
+        project.user_id = ${ctx.session_id}
+      `);
+      return resp.rows;
     }
   }
 };
