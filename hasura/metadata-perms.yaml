@@ -1,0 +1,65 @@
+version: 2
+tables:
+- select_permissions:
+  - role: user
+    permission:
+      columns:
+      - id
+      - title
+      - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+  object_relationships:
+  - using:
+      foreign_key_constraint_on: user_id
+    name: user
+  table:
+    schema: public
+    name: project
+  array_relationships:
+  - using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          schema: public
+          name: task
+    name: tasks
+- select_permissions:
+  - role: user
+    permission:
+      columns:
+      - id
+      - title
+      - project_id
+      filter:
+        project:
+          user_id:
+            _eq: X-Hasura-User-Id
+  object_relationships:
+  - using:
+      foreign_key_constraint_on: project_id
+    name: project
+  table:
+    schema: public
+    name: task
+- select_permissions:
+  - role: user
+    permission:
+      columns:
+      - id
+      - username
+      filter:
+        id:
+          _eq: x-hasura-user-id
+  table:
+    schema: public
+    name: user
+  array_relationships:
+  - using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: project
+    name: projects

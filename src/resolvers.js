@@ -51,7 +51,7 @@ const resolvers = {
     }
   },
   Task: {
-    // returns all fields of album, but authorizing only album belonging to the given user's
+    // returns all fields of project, but authorizing only project belonging to the given user's
     // session id
     async project(task, args, ctx, info) {
       const resp = await client.query(`

@@ -1,0 +1,40 @@
+version: 2
+
+tables:
+
+- table:
+    schema: public
+    name: user
+  array_relationships:
+  - using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: project
+    name: projects
+
+
+- table:
+    schema: public
+    name: project
+  object_relationships:
+  - using:
+      foreign_key_constraint_on: user_id
+    name: user
+  array_relationships:
+  - using:
+      foreign_key_constraint_on:
+        column: project_id
+        table:
+          schema: public
+          name: task
+    name: tasks
+
+- table:
+    schema: public
+    name: task
+  object_relationships:
+  - using:
+      foreign_key_constraint_on: project_id
+    name: project
